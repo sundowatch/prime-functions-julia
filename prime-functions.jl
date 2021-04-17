@@ -1,3 +1,6 @@
+using Random, LinearAlgebra, PyCall
+np = pyimport("numpy")
+
 function is_prime(val)
     if val == 1
         return false
@@ -152,6 +155,23 @@ function prime_divisors(val)
         return false
     else
         # Array{Int64}(undef, 0)
+        arr = Array{Int64, 1}(undef, 0)
+        if val % 2 == 0
+            push!(arr, 2)
+        end
+        for i = 3:2:val
+            if is_prime(i) && val % i == 0
+                push!(arr, i)
+            end
+        end
+        return arr
+    end
+end
+
+function prime_factors(val)
+    if is_prime(val)
+        return false
+    else
         arr = Array{Int64, 1}(undef, 0)
         if val % 2 == 0
             push!(arr, 2)
@@ -382,4 +402,119 @@ function first_n_primes(n)
         end
         return primes
     end
+end
+
+
+
+
+
+function fermat_test(n::Int64, k::Int64)
+    function power(a, n, p)
+        function fraction(val, divisor)
+            return (val - (val % divisor)) / divisor
+        end
+    
+        res = 1
+        a = a % p
+    
+        while n > 0
+            if n % 2 == 1
+                res = (res * a) % p
+            end
+    
+            n = fraction(n, 2)
+            a = (a * a) % p
+        end
+        return res
+    end
+
+    if n <= 1 || n == 4 || n % 2 == 0
+        return false
+    end
+    if n <= 3
+        return true
+    end
+
+    while k > 0
+        a = 2 + rand(1:999999) % (n - 4)
+
+        if power(a, n-1, n) != 1
+            return false
+        end
+        k -= 1
+    end
+
+    return true
+end
+
+function miiller_test(n, k)
+    function power(a, n, p)
+        function fraction(val, divisor)
+            return (val - (val % divisor)) / divisor
+        end
+    
+        res = 1
+        a = a % p
+    
+        while n > 0
+            if n % 2 == 1
+                res = (res * a) % p
+            end
+    
+            n = fraction(n, 2)
+            a = (a * a) % p
+        end
+        return res
+    end
+    function test(d, n)
+        a = 2 + rand(1:999999) % (n - 4)
+
+        x = power(a, d, n)
+
+        if x == 1 || x == n-1
+            return true
+        end
+
+        while d != n-1
+            x = (x * x) % n
+            d *= 2
+
+            if x == 1
+                return false
+            end
+            if x == n-1
+                return true
+            end
+        end
+        return false
+    end
+
+    # n, k
+    if n <= 1 || n == 4
+        return false
+    end
+    if n <= 3
+        return true
+    end
+
+    d = n - 1
+    while d % 2 == 0
+        d /= 2
+    end
+
+    for i = 0:k
+        if !test(d, n)
+            return false
+        end
+    end
+    return true
+end
+
+function lucas_lehmer_test(p)
+    M = (2 ^ p) - 1
+    s = 4
+    for i = 1:p-2
+        s = ((s^2) - 2) % M
+    end
+    return s == 0
 end
