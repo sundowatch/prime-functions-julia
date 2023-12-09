@@ -1,6 +1,3 @@
-using Random, LinearAlgebra, PyCall
-np = pyimport("numpy")
-
 function is_prime(val)
     if val == 1
         return false
@@ -13,6 +10,23 @@ function is_prime(val)
     else
         res = true
         for i = 3:2:round(sqrt(val))
+            if val % i == 0
+                res = false
+                break
+            end
+        end
+        return res
+    end
+end
+
+function is_prime_with_prev(val, prevs=[])
+    if val == 1
+        return false
+    elseif val % 2 == 0
+        return false
+    else
+        res = true
+        for i in prevs
             if val % i == 0
                 res = false
                 break
@@ -113,6 +127,59 @@ function prev_prime(val)
             end
         end
         return nth_prime(stop_counter - 1)
+    end
+end
+
+function next_prime_forced(val)
+    if !is_prime(val)
+        return false
+    else
+        if(val % 2 == 0)
+            val += 1
+        else
+            val += 2
+        end
+        while true
+            if is_prime(val)
+                return val
+            else
+                val += 2
+            end
+        end
+    end
+end
+
+function next_prime_with_prev(val, prevs=[])
+    if val % 2 == 0
+        val += 1
+    else
+        val += 2
+        while true
+            if is_prime_with_prev(val, prevs)
+                return val
+            else
+                val += 2
+            end
+        end
+    end
+end
+
+function prev_prime_forced(val)
+    if !is_prime(val) || val == 2
+        return false
+    else
+        if(val % 2 == 0)
+            val -= 1
+        else
+            val -= 2
+        end
+        while true
+            if is_prime(val)
+                return val
+            else
+                val -= 2
+            end
+        end
     end
 end
 
